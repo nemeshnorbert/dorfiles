@@ -52,7 +52,7 @@ Plugin 'bling/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 
 " YCM
-" Plugin 'Valloric/YouCompleteMe'
+Plugin 'Valloric/YouCompleteMe'
 
 " C++
 Plugin 'a.vim'
@@ -62,7 +62,8 @@ Plugin 'derekwyatt/vim-fswitch'
 " Python
 Plugin 'nvie/vim-flake8'
 Plugin 'klen/python-mode'  " Vim python-mode. PyLint, Rope, PyDoc, breakpoints from box
-Plugin 'scrooloose/syntastic'  " Syntax checking hacks for vim
+Plugin 'vim-syntastic/syntastic'  " Syntax checking hacks for vim
+
 
 " Tmux syntax support
 Plugin 'whatyouhide/vim-tmux-syntax'
@@ -240,6 +241,9 @@ set listchars=trail:·,tab:→→
 
 " typos
 " iab itn int
+
+" set shell to use in :terminal
+set shell=/bin/bash
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                           More involved tweaks                          "
@@ -457,7 +461,6 @@ let g:startify_custom_header = [
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let g:PyFlakeOnWrite = 0
-let g:PyFlakeForcePyVersion = 2
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                          scrooloose/syntastic                           "
