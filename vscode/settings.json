@@ -95,6 +95,9 @@
         "editor.defaultFormatter": "vscode.html-language-features"
     },
 
+    // ICONS
+    "material-icon-theme.folders.theme": "none",
+
     // JUPYTER
 	"jupyter.themeMatplotlibPlots": true,
     "jupyter.askForKernelRestart": false,
@@ -116,7 +119,7 @@
         "editor.tabSize": 4,
         "editor.insertSpaces": true,
         "editor.detectIndentation": true,
-        "editor.defaultFormatter": "ms-python.python",
+        "editor.defaultFormatter": "ms-python.vscode-pylance",
     },
 
     // REMOTE DEVELOPMENT
@@ -172,12 +175,10 @@
         "<C-b>": false // if  false enables explorer toggling, use PageUp instead
     },
 
-    // ICONS
-    "material-icon-theme.folders.theme": "none",
-
     // WINDOW
     "window.titleBarStyle": "custom",
     "window.menuBarVisibility": "compact",
+    "window.zoomLevel": -1
 
     // WORKBENCH
     "workbench.colorTheme": "One Dark Pro",
@@ -193,7 +194,4 @@
 
     // ZEN MODE
     "zenMode.restore": true,
-
-    // WINDOW
-    "window.zoomLevel": -1
 }
