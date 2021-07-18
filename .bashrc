@@ -762,13 +762,13 @@ function __prompt_command_stop {
 function __prompt_command {
     # Must come first!
     LastCommand=$?
-    BoldYellow='\[\e[01;33m\]'
-    BoldBlue='\[\e[01;34m\]'
-    BoldWhite='\[\e[01;37m\]'
-    BoldRed='\[\e[01;31m\]'
-    BoldGreen='\[\e[01;32m\]'
-    FaintGreen='\[\e[02;32m\]'
-    Reset='\[\e[00m\]'
+    BoldYellow=$(__posh_color '\e[01;33m')
+    BoldBlue=$(__posh_color '\e[01;34m')
+    BoldWhite=$(__posh_color '\e[01;37m')
+    BoldRed=$(__posh_color '\e[01;31m')
+    BoldGreen=$(__posh_color '\e[01;32m')
+    FaintGreen=$(__posh_color '\e[02;32m')
+    Reset=$(__posh_color '\e[00m\]')
     FancyX='\342\234\227'
     Checkmark='\342\234\223'
     Newline='\n'
