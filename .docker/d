@@ -81,16 +81,6 @@ function __default_docker_args() {
     args+="--volume /etc/passwd:/etc/passwd:ro "
     args+="--volume /etc/shadow:/etc/shadow:ro "
     args+="--volume /etc/sudoers.d:/etc/sudoers.d:ro "
-    args+="--volume ${HOME}/dev:${HOME}/dev "
-    args+="--volume ${HOME}/.bashrc:${HOME}/.bashrc "
-    args+="--volume ${HOME}/.bash_profile:${HOME}/.bash_profile "
-    args+="--volume ${HOME}/.gitconfig:${HOME}/.gitconfig "
-    args+="--volume ${HOME}/.tmux.conf:${HOME}/.tmux.conf "
-    args+="--volume ${HOME}/.vim:${HOME}/.vim "
-    args+="--volume ${HOME}/.vimrc:${HOME}/.vimrc "
-    args+="--volume ${HOME}/.ssh:${HOME}/.ssh "
-    args+="--volume ${HOME}/.jupyter:${HOME}/.jupyter "
-    args+="--volume ${HOME}/.docker_bash_history:${HOME}/.bash_history "
     echo "${args}"
 }
 
