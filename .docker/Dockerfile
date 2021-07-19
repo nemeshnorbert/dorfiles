@@ -89,8 +89,6 @@ RUN apt-get update && \
     apt-get install -y python3-sklearn && \
     # IDE for data scientists. Hope some day we can install it as deb package
     pip3 install jupyterlab && \
-    # Python library for creating interactive visualizations for modern web browsers
-    pip3 install bokeh && \
     # give access for user to working directory
     chown $uid:$gid $home && \
     # Ensure that excessive files are deleted
