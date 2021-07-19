@@ -70,7 +70,6 @@ Plugin 'whatyouhide/vim-tmux-syntax'
 
 " git
 Plugin 'tpope/vim-fugitive'
-Plugin 'airblade/vim-gitgutter'
 
 " SURROUND
 Plugin 'tpope/vim-surround'
@@ -511,13 +510,9 @@ let g:NERDTreeGitStatusUpdateOnWrite = 1
 " autocmd BufEnter * lcd %:p:h
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                             airblade/vim-gitgutter                      "
+"                             tpope/vim-fugitive                          "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-highlight link GitGutterAdd DiffAdd
-highlight link GitGutterDelete DiffDelete
-highlight link GitGutterChange DiffChange
-
+set diffopt+=vertical
 let g:NERDTreeGitStatusWithFlags = 1
 let g:NERDTreeGitStatusNodeColorization = 1
 
