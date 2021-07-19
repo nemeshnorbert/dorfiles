@@ -344,6 +344,13 @@ map! <F12> <C-o><F12>
 map <silent> <S-F12> :set relativenumber!<CR>
 map! <S-F12> <C-o><S-F12>
 
+" replace visual selection (https://stackoverflow.com/a/676619/3066429)
+" By pressing ctrl+r in visual mode, you will be prompted to enter text to replace with.
+" Press enter and then confirm each change you agree with y or decline with n.
+" This command will override your register h so you can choose other one (by changing h in
+" the command above to another lower case letter) that you don't use.
+vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                       ***  HERE BE PLUGINS  ***                         "
