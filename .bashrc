@@ -114,7 +114,8 @@ export DISPLAY
 # set -o ignoreeof
 # Report the status of terminated background jobs immediately
 set -o notify
-# Prevent overwriting existing files with the > operator
+# Prevent overwriting existing files with the > operator.
+# If you want to overwrite use >! or >| operators
 set -o noclobber
 # Fail early when pipe'ing bash commands
 set -o pipefail
