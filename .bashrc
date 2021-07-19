@@ -762,13 +762,13 @@ function __prompt_command_stop {
 function __prompt_command {
     # Must come first!
     LastCommand=$?
-    BoldYellow=$(__posh_color '\e[01;33m')
-    BoldBlue=$(__posh_color '\e[01;34m')
-    BoldWhite=$(__posh_color '\e[01;37m')
-    BoldRed=$(__posh_color '\e[01;31m')
-    BoldGreen=$(__posh_color '\e[01;32m')
-    FaintGreen=$(__posh_color '\e[02;32m')
-    Reset=$(__posh_color '\e[00m\]')
+    BoldYellow=$(__posh_color '\033[01;33m')
+    BoldBlue=$(__posh_color '\033[01;34m')
+    BoldWhite=$(__posh_color '\033[01;37m')
+    BoldRed=$(__posh_color '\033[01;31m')
+    BoldGreen=$(__posh_color '\033[01;32m')
+    FaintGreen=$(__posh_color '\033[02;32m')
+    Reset=$(__posh_color '\033[00m')
     FancyX='\342\234\227'
     Checkmark='\342\234\223'
     Newline='\n'
@@ -820,7 +820,7 @@ function __prompt_command {
     else
         PS1SYMBOL+="$BoldRed\\\$ "
     fi
-    PS1SYMBOL+="$Reset "
+    PS1SYMBOL+="$Reset"
     PS1="${PS1VENV}${PS1LOC}${PS1GIT}${PS1STATUS}${PS1TIME}${PS1SYMBOL}"
 }
 
