@@ -1,180 +1,266 @@
 #!/bin/bash
 
+# styleguide: https://google.github.io/styleguide/shellguide.html
+
 # saner programming env: these switches turn some bugs into errors
 set -o pipefail -o noclobber -o nounset
 
-# -allow a command to fail with !’s side effect on errexit
-# -use return value from ${PIPESTATUS[0]}, because ! hosed $?
-! getopt --test > /dev/null
-if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
-    echo "I’m sorry, getopt --test failed in this environment."
-    exit 1
-fi
-
-OPTIONS=hbusld
-LONGOPTS=help,build,up,stop,list,destroy
-
-# -regarding ! and PIPESTATUS see above
-# -temporarily store output to be able to check for errors
-# -activate quoting/enhanced mode (e.g. by writing out “--options”)
-# -pass arguments only via   -- "$@"   to separate them correctly
-! PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
-if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
-    # e.g. return value is 1
-    #  then getopt has complained about wrong arguments to stdout
-    exit 2
-fi
-
-# read getopt’s output this way to handle the quoting right:
-eval set -- "$PARSED"
-
+##################################
+# Docker functions
+#################################
 
 uid=$(id -u)
 gid=$(id -g)
-image_name="dev"
-container_name="dev"
+default_image_name="dev"
+default_container_name="dev"
 
-function docker_help() {
-    echo "Docker wrapper for primary development docker image"
-    echo "Options:"
-    echo "  -h, --help      Options description"
-    echo "  -b, --build     Build '$image_name' image"
-    echo "  -u, --up        Run '$container_name' container (if not exists) and attach to it"
-    echo "  -s, --stop      Stop '$container_name' container"
-    echo "  -l, --list      List info on all images and containers"
-    echo "  -d, --destroy   Stop '$container_name' container and delete it"
+function __docker_build() {
+    __docker_build_impl "$1" "$2"
 }
 
-function docker_build() {
-    docker_build_impl
-}
-
-function docker_up() {
+function __docker_up() {
+    local image_name="$1"
+    local container_name="$2"
+    local docker_extra_args="$3"
     local container_id
-    container_id=$(docker ps --all --filter "name=$container_name" --format "{{.ID}}")
-    if [[ -z "$container_id" ]]; then
-        docker_create_impl
+    container_id=$(docker ps --all --filter "name=${container_name}" --format "{{.ID}}")
+    if [[ -z "${container_id}" ]]; then
+        __docker_create_impl "${image_name}" "${container_name}" "${docker_extra_args}"
     fi
-    docker_start_impl
-    docker_attach_impl
+    __docker_start_impl "${container_name}"
+    __docker_attach_impl "${container_name}"
 }
 
-function docker_stop() {
-    docker_stop_impl
+function __docker_stop() {
+    local container_name="$1"
+    __docker_stop_impl
 }
 
-function docker_list() {
-    docker_list_containers_impl
+function __docker_list() {
+    __docker_list_containers_impl
     echo ""
-    docker_list_images_impl
+    __docker_list_images_impl
 }
 
-function docker_destroy() {
-    docker_stop_impl
-    docker_rm_impl
+function __docker_destroy() {
+    local container_name="$1"
+    __docker_stop_impl "$1"
+    __docker_rm_impl "$1"
 }
 
-######################### Impl #########################
-
-function docker_build_impl() {
-    local script_link
-    script_link=$(readlink -f "$0")
-    local docker_dir
-    docker_dir=$(dirname "$script_link")
+function __docker_build_impl() {
+    local image_name="$1"
+    if [[ -z "$2" ]]; then
+        local script_link
+        script_link=$(readlink -f "$0")
+        local docker_dir
+        docker_dir=$(dirname "${script_link}")
+        local docker_file="${docker_dir}/Dockerfile"
+    else
+        local docker_file=$1
+        local docker_dir
+        docker_dir=$(dirname "${docker_file}")
+    fi
     docker build \
-        --build-arg uid="$uid" \
-        --build-arg gid="$gid" \
-        --build-arg home="$HOME" \
+        --build-arg uid="${uid}" \
+        --build-arg gid="${gid}" \
+        --build-arg home="${HOME}" \
         --no-cache \
-        -t $image_name \
-        -f "$docker_dir/Dockerfile" \
-        "$docker_dir"
+        -t "${image_name}" \
+        -f "${docker_file}" \
+        "${docker_dir}"
 }
 
-function docker_create_impl() {
+function __default_docker_args() {
+    local args=''
+    args+="--interactive "
+    args+="--tty "
+    args+="--user ${uid}:${gid} "
+    args+="--name ${container_name} "
+    args+="--volume /etc/group:/etc/group:ro "
+    args+="--volume /etc/passwd:/etc/passwd:ro "
+    args+="--volume /etc/shadow:/etc/shadow:ro "
+    args+="--volume /etc/sudoers.d:/etc/sudoers.d:ro "
+    args+="--volume ${HOME}/dev:${HOME}/dev "
+    args+="--volume ${HOME}/.bashrc:${HOME}/.bashrc "
+    args+="--volume ${HOME}/.bash_profile:${HOME}/.bash_profile "
+    args+="--volume ${HOME}/.gitconfig:${HOME}/.gitconfig "
+    args+="--volume ${HOME}/.tmux.conf:${HOME}/.tmux.conf "
+    args+="--volume ${HOME}/.vim:${HOME}/.vim "
+    args+="--volume ${HOME}/.vimrc:${HOME}/.vimrc "
+    args+="--volume ${HOME}/.ssh:${HOME}/.ssh "
+    args+="--volume ${HOME}/.jupyter:${HOME}/.jupyter "
+    args+="--volume ${HOME}/.docker_bash_history:${HOME}/.bash_history "
+    echo "${args}"
+}
+
+function __docker_create_impl() {
+    local image_name="$1"
+    local container_name="$2"
+    local docker_extr_args="$3"
+    local docker_default_args
+    docker_default_args=$(__default_docker_args)
+    local docker_all_args="${docker_default_args} ${docker_extr_args}"
+
+    # we need this array to stop shellcheck complaining about docker create call
+    local docker_args=()
+    for arg in ${docker_all_args}; do
+        docker_args+=("${arg}")
+    done
+
     docker create \
-        --interactive \
-        --tty \
-        --user "$uid:$gid" \
-        --name $container_name \
-        --publish 8888:8888 \
-        --volume /etc/group:/etc/group:ro \
-        --volume /etc/passwd:/etc/passwd:ro \
-        --volume /etc/shadow:/etc/shadow:ro \
-        --volume /etc/sudoers.d:/etc/sudoers.d:ro \
-        --volume "$HOME/dev:$HOME/dev" \
-        --volume "$HOME/.bashrc:$HOME/.bashrc" \
-        --volume "$HOME/.bash_profile:$HOME/.bash_profile" \
-        --volume "$HOME/.gitconfig:$HOME/.gitconfig" \
-        --volume "$HOME/.tmux.conf:$HOME/.tmux.conf" \
-        --volume "$HOME/.vim:$HOME/.vim" \
-        --volume "$HOME/.vimrc:$HOME/.vimrc" \
-        --volume "$HOME/.ssh:$HOME/.ssh" \
-        --volume "$HOME/.jupyter:$HOME/.jupyter" \
-        --volume "$HOME/.docker_bash_history:$HOME/.bash_history" \
-        $image_name \
+        "${docker_args[@]}" \
+        "${image_name}" \
         1>/dev/null
 }
 
-function docker_start_impl() {
-    docker start $container_name 1>/dev/null
+function __docker_start_impl() {
+    local container_name="$1"
+    docker start "${container_name}" 1>/dev/null
 }
 
-function docker_stop_impl() {
-    docker stop $container_name 1>/dev/null
+function __docker_stop_impl() {
+    local container_name="$1"
+    docker stop "${container_name}" 1>/dev/null
 }
 
-function docker_attach_impl() {
-    docker attach $container_name
+function __docker_attach_impl() {
+    local container_name="$1"
+    docker exec -it "${container_name}" bash
 }
 
-function docker_list_containers_impl() {
+function __docker_list_containers_impl() {
     docker ps -a
 }
 
-function docker_list_images_impl() {
+function __docker_list_images_impl() {
     docker image ls
 }
 
-function docker_rm_impl() {
-    docker rm $container_name 1>/dev/null
+function __docker_rm_impl() {
+    local container_name="$1"
+    docker rm "${container_name}" 1>/dev/null
 }
 
 
-# now enjoy the options in order and nicely split until we see --
-while true; do
-    case "$1" in
-        -h|--help)
-            docker_help
-            shift
-            ;;
-        -b|--build)
-            docker_build
-            shift
-            ;;
-        -u|--up)
-            docker_up
-            shift
-            ;;
-        -s|--stop)
-            docker_stop
-            shift
-            ;;
-        -l|--list)
-            docker_list
-            shift
-            ;;
-        -d|--destroy)
-            docker_destroy
-            shift
-            ;;
-        --)
-            shift
-            break
-            ;;
-        *)
-            echo "Runtime error while parsing arguments!"
-            exit 3
-            ;;
-    esac
-done
+##################################
+# Script
+#################################
+
+function __script_help() {
+    image_name="$1"
+    container_name="$2"
+    echo "Docker wrapper for development docker image"
+    echo "Options:"
+    echo "  -h, --help             Options description"
+    echo "  -b, --build            Build '${image_name}' image"
+    echo "  -u, --up               Run '${container_name}' container (if not exists) and attach to it"
+    echo "  -s, --stop             Stop '${container_name}' container"
+    echo "  -l, --list             List info on all images and containers"
+    echo "  -d, --destroy          Stop '${container_name}' container and delete it"
+    echo "  -f, --docker_file      Path to the docker file, default is <SCRIPTS_CURRENT_DIR>/Dockerfile"
+    echo "  -i, --image_name       Name of the image, default is ${default_image_name}"
+    echo "  -c, --container_name   Name of the container, default is ${default_container_name}"
+    echo "Additional parameters are listed after -- and passed to docker"
+    echo "Examples:"
+    echo "  ./d -b                                # Build container"
+    echo "  ./d -b --docker_file ~/myDockerfile   # Build container"
+    echo "  ./d -u                                # Run and attach to container"
+    echo "  ./d -sd                               # Stop container and delete it"
+    echo "  ./d -bu --publish 8080                # Build container, run it with open port 8080 and attach"
+}
+
+function __main() {
+    local args=("$@")
+    local args_length=${#args[@]}
+
+    local docker_extra_args=""
+    local docker_extra_args_started=0
+    local docker_file=""
+
+    local dummy_image_name="UNNAMED"
+    local dummy_container_name="UNNAMED"
+    local image_name="${dummy_image_name}"
+    local container_name="${dummy_container_name}"
+
+    local commands=()
+    for ((i=0; i<args_length; )); do
+        arg=${args[${i}]}
+        case "${arg}" in
+            -h|--help)
+                commands+=("help")
+                ;;
+            -b|--build)
+                commands+=("build")
+                ;;
+            -u|--up)
+               commands+=("up")
+                ;;
+            -s|--stop)
+                commands+=("stop")
+                ;;
+            -l|--list)
+                commands+=("list")
+                ;;
+            -d|--destroy)
+                commands+=("destroy")
+                ;;
+            -f|--docker_file)
+                ((i+=1))
+                docker_file=${args[${i}]}
+                ;;
+            -i|--image_name)
+                ((i+=1))
+                image_name=${args[${i}]}
+                ;;
+            -c|--container_name)
+                ((i+=1))
+                container_name=${args[${i}]}
+                ;;
+            --)
+                docker_extra_args_started=1
+                ;;
+            *)
+                if (( docker_extra_args_started == 0)); then
+                    echo "Can\'t parse arguments. Unknown argument ${arg}"
+                    __script_help "${image_name}" "${container_name}"
+                    exit 1
+                fi
+                docker_extra_args+="${arg} "
+                ;;
+        esac
+        ((i+=1))
+    done
+
+    # TODO(norberrt): Add logic with image_name and container_name
+    if [[ "${container_name}" ==  "${dummy_container_name}" ]]; then
+        container_name="${default_container_name}"
+    fi
+    if [[ "${image_name}" ==  "${dummy_image_name}" ]]; then
+        image_name="${default_image_name}"
+    fi
+
+
+    for command in "${commands[@]}"; do
+        if [[ ${command} == "help" ]]; then
+            __script_help "${image_name}" "${container_name}"
+        fi
+        if [[ ${command} == "build" ]]; then
+            __docker_build "${image_name}" "${docker_file}"
+        fi
+        if [[ ${command} == "up" ]]; then
+            __docker_up "${image_name}" "${container_name}" "${docker_extra_args}"
+        fi
+        if [[ ${command} == "stop" ]]; then
+            __docker_stop "${container_name}"
+        fi
+        if [[ ${command} == "list" ]]; then
+            __docker_list
+        fi
+        if [[ ${command} == "destroy" ]]; then
+            __docker_destroy "${container_name}"
+        fi
+    done
+}
+
+__main "$@"
