@@ -114,6 +114,7 @@
 
     // PYTHON
     "python.analysis.logLevel": "Information",
+    "python.analysis.typeCheckingMode": "off",
     "python.linting.enabled": true,
     "[python]": {
         "editor.tabSize": 4,
@@ -178,7 +179,6 @@
     // WINDOW
     "window.titleBarStyle": "custom",
     "window.menuBarVisibility": "compact",
-    "window.zoomLevel": -1
 
     // WORKBENCH
     "workbench.colorTheme": "One Dark Pro",
@@ -193,5 +193,5 @@
     },
 
     // ZEN MODE
-    "zenMode.restore": true,
+    "zenMode.restore": true
 }
