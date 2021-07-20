@@ -193,5 +193,6 @@
     },
 
     // ZEN MODE
-    "zenMode.restore": true
+    "zenMode.restore": true,
+    "window.zoomLevel": -1
 }
