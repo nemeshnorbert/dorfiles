@@ -14,8 +14,18 @@ gid=$(id -g)
 default_image_name="dev"
 default_container_name="dev"
 
+function __script_directory() {
+    local script_link
+    script_link=$(readlink -f "$0")
+    local script_dir
+    script_dir=$(dirname "${script_link}")
+    echo "${script_dir}"
+}
+
 function __docker_build() {
-    __docker_build_impl "$1" "$2"
+    local image_name="$1"
+    local docker_file="$2"
+    __docker_build_impl "${image_name}" "${docker_file}"
 }
 
 function __docker_up() {
@@ -33,7 +43,7 @@ function __docker_up() {
 
 function __docker_stop() {
     local container_name="$1"
-    __docker_stop_impl
+    __docker_stop_impl "${container_name}"
 }
 
 function __docker_list() {
@@ -51,10 +61,7 @@ function __docker_destroy() {
 function __docker_build_impl() {
     local image_name="$1"
     if [[ -z "$2" ]]; then
-        local script_link
-        script_link=$(readlink -f "$0")
-        local docker_dir
-        docker_dir=$(dirname "${script_link}")
+        docker_dir=$(__script_directory)
         local docker_file="${docker_dir}/Dockerfile"
     else
         local docker_file=$1
@@ -81,6 +88,16 @@ function __default_docker_args() {
     args+="--volume /etc/passwd:/etc/passwd:ro "
     args+="--volume /etc/shadow:/etc/shadow:ro "
     args+="--volume /etc/sudoers.d:/etc/sudoers.d:ro "
+    args+="--volume ${HOME}/dev:${HOME}/dev "
+    args+="--volume ${HOME}/.bashrc:${HOME}/.bashrc "
+    args+="--volume ${HOME}/.bash_profile:${HOME}/.bash_profile "
+    args+="--volume ${HOME}/.gitconfig:${HOME}/.gitconfig "
+    args+="--volume ${HOME}/.tmux.conf:${HOME}/.tmux.conf "
+    args+="--volume ${HOME}/.vim:${HOME}/.vim "
+    args+="--volume ${HOME}/.vimrc:${HOME}/.vimrc "
+    args+="--volume ${HOME}/.ssh:${HOME}/.ssh "
+    args+="--volume ${HOME}/.jupyter:${HOME}/.jupyter "
+    args+="--volume ${HOME}/.docker_bash_history:${HOME}/.bash_history "
     echo "${args}"
 }
 
@@ -222,14 +239,12 @@ function __main() {
         ((i+=1))
     done
 
-    # TODO(norberrt): Add logic with image_name and container_name
     if [[ "${container_name}" ==  "${dummy_container_name}" ]]; then
         container_name="${default_container_name}"
     fi
     if [[ "${image_name}" ==  "${dummy_image_name}" ]]; then
         image_name="${default_image_name}"
     fi
-
 
     for command in "${commands[@]}"; do
         if [[ ${command} == "help" ]]; then
