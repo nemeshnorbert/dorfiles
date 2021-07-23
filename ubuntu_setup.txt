@@ -1,0 +1,123 @@
+Ubuntu
+    Install OS
+        During installation select install all additional third party resources. This way you avoid
+        installing necessary third-party packages required for proper video playback in firefox browser
+
+    Install touchpad driver
+        sudo apt-get install xserver-xorg-input-synaptics
+
+    Install Russian language
+        https://askubuntu.com/questions/1030418/how-to-change-text-entry-in-ubuntu-18-04
+        Settings > Region and langage > Input sources > Manage Installed Languages > Install/Remove languages. Select Russian. Click apply
+        Settings > Region and language > Input Sources. Click + button and select Russian.
+        Reboot
+
+    Install Color Themes for Gnome terminal
+        bash -c "$(wget -qO- https://git.io/vQgMr)"
+        Select profile PaperColor Dark.
+        In preferences set selected profile as as default.
+        In color tab choose Tango dark as Built-in Scheme
+
+    Install music player
+        Open Ubuntu Software. Type 'clementine' in the search bar. Click install
+
+    Install archive manager
+        sudo apt-get install p7zip-full
+
+    Image viewer
+        sudo apt install nomacs
+
+    Install video player
+        sudo apt install smplayer
+
+    Install gnome tweak tool
+        sudo apt-get install gnome-tweaks
+
+    Optional
+        Install screen recorder
+            sudo apt install simplescreenrecorder
+
+        Install Windows
+            https://itsfoss.com/install-windows-10-virtualbox-linux/
+
+        Install TeX tools
+            sudo apt-get install texlive-latex-base
+
+Tweaks
+    Decrease lag for repeated keys
+        Settings > Universal Access > Repeat keys. Play with delay and speed parameters. Probably you will decrease delay
+
+    Enable extended fonts
+        sudo apt-get install fonts-powerline
+
+    Enable two-fingers scrolling
+        Settings > Devices > Mouse and Touchpad > Touchpad > Two finger scrolling on
+
+    Turn off annoying zoom in Firefox when scrolling with Ctrl pressed
+        https://support.mozilla.org/en-US/questions/955305
+        Open firefox. Type `about:config` in your search bar. Find setting `mousewheel.with_control.action`
+        and change its value to 1.
+
+    Turn off Ubuntu Error sound
+        https://askubuntu.com/questions/1030515/turn-off-error-sound-on-ubuntu-18-04
+        Setting > Sound > Sound Effects > Alert Volume > Off.
+
+    Add ‘New Document’ Option in Right Click Context Menu in Ubuntu 18.04
+        https://askubuntu.com/questions/777711/create-new-document-right-click-option-missing-in-ubuntu-gnome
+        mkdir ~/Templates
+        touch ~/Templates/empty.txt
+
+    Assign a keyboard shortcut to switch keyboard layout
+        https://askubuntu.com/questions/1029588/18-04-ctrlshift-to-change-language/1029605
+        Open via Teminal gnome-control-center
+        Select Keyboard shortcuts > Typing
+        Click Switch to next input source
+        Set Alt+Space as desired shortcut (or whatever you like the most)
+
+    Adjust touchpad settings
+        https://askubuntu.com/questions/1120841/make-xinput-settings-permanent-after-boot
+        List available options at http://manpages.ubuntu.com/manpages/xenial/man4/synaptics.4.html
+        Your current settings: `xinput list-props "SynPS/2 Synaptics TouchPad"`
+        If everything went wrong just reinstall the touchpad driver
+
+Bugs
+    Disable grub at startup
+        https://askubuntu.com/questions/111085/how-do-i-hide-the-grub-menu-showing-up-at-the-beginning-of-boot
+        sudo vim /etc/default/grub
+        Add line
+        GRUB_DISABLE_OS_PROBER=true
+        sudo update-grub
+
+Development
+    Install Telegramm
+        Open Ubuntu Software. Type 'telegram' in the search bar. Click install
+
+    Install skype
+        Open Ubuntu Software. Type 'skype' in the search bar. Click install
+        Open Skype. Then Tools > Settings > General > Automatically start skype off
+
+    Install docker
+        Install docker https://docs.docker.com/engine/install/ubuntu/
+        Install docker-compose https://docs.docker.com/compose/install/
+        Manage docker as non-root https://docs.docker.com/engine/install/linux-postinstall/
+
+    Usefull tools. Do not forget to run `sudo apt-get update` before installation
+        sudo apt-get install htop
+        sudo apt-get install vim
+        sudo apt-get install git
+        sudo apt-get install build-essential
+        sudo apt-get install cmake
+        sudo apt-get install python-dev
+        sudo apt-get install curl
+        sudo apt-get install python3-venv
+        sudo apt-get install python3-pip
+        sudo apt-get install python3-virtualenv
+        sudo apt-get install tmux
+        sudo apt-get install tldr
+        sudo apt-get install shellcheck
+        sudo apt-get install ranger
+        sudo apt-get install rename
+
+    Install VSCode, dotfiles etc
+        sudo bash ~/Documents/Programming/Settings/dotfiles/setup.sh
+
