@@ -1,7 +1,7 @@
 set encoding=utf8
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                                preamble                                  "
+"                                Preamble                                  "
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 set nocompatible
@@ -39,49 +39,40 @@ call vundle#begin()
 
 Plugin 'gmarik/Vundle.vim'
 
-Plugin 'majutsushi/tagbar'
-Plugin 'mhinz/vim-startify'
-Plugin 'tpope/vim-commentary'
-Plugin 'mkitt/tabline.vim'
-Plugin 'scrooloose/nerdtree'
-Plugin 'Xuyuanp/nerdtree-git-plugin'
+Plugin 'majutsushi/tagbar'                   " Browse the tags of the file and get an overview of its structure
+Plugin 'mhinz/vim-startify'                  " Start screen for vim
+Plugin 'tpope/vim-commentary'                " Comment stuff in and out
+Plugin 'mkitt/tabline.vim'                   " Configure tab labels within vim with a very succinct output
+Plugin 'scrooloose/nerdtree'                 " File system explorer for vim
+Plugin 'Xuyuanp/nerdtree-git-plugin'         " A plugin of NERDTree showing git status flags.
+Plugin 'ryanoasis/vim-devicons'              " Enble fancy icons in vim
 
 " Colors
-Plugin 'flazz/vim-colorschemes'
-Plugin 'bling/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
+Plugin 'flazz/vim-colorschemes'              " One stop shop for vim colorschemes
+Plugin 'bling/vim-airline'                   " Lean & mean status/tabline for vim that's light as air
+Plugin 'vim-airline/vim-airline-themes'      " Themes for vim-airline plugin
 
 " YCM
-Plugin 'Valloric/YouCompleteMe'
+Plugin 'Valloric/YouCompleteMe'              " Code completion engine for Vim
 
 " C++
-Plugin 'a.vim'
-Plugin 'octol/vim-cpp-enhanced-highlight'
-Plugin 'derekwyatt/vim-fswitch'
+Plugin 'a.vim'                               " Alternate files quickly (.c <--> .h etc) via :A
+Plugin 'octol/vim-cpp-enhanced-highlight'    " Advanced highlighting of C++ code
 
 " Python
-Plugin 'nvie/vim-flake8'
-Plugin 'klen/python-mode'  " Vim python-mode. PyLint, Rope, PyDoc, breakpoints from box
-Plugin 'vim-syntastic/syntastic'  " Syntax checking hacks for vim
+Plugin 'klen/python-mode'                    " Vim python-mode. PyLint, Rope, PyDoc, breakpoints from box
 
+" Git
+Plugin 'tpope/vim-fugitive'                  " Git plugin for Vim. So awesome, it should be illegal
 
-" Tmux syntax support
-Plugin 'whatyouhide/vim-tmux-syntax'
-
-" git
-Plugin 'tpope/vim-fugitive'
-
-" SURROUND
-Plugin 'tpope/vim-surround'
+" Surround
+Plugin 'tpope/vim-surround'                  " All about surroundings: parentheses, brackets, quotes, XML tags, and more
 
 " CtrlP
-Plugin 'ctrlpvim/ctrlp.vim'
-
-" EasyMotion
-Plugin 'easymotion/vim-easymotion'
+Plugin 'ctrlpvim/ctrlp.vim'                  " Full path fuzzy file, buffer, mru, tag, ... finder for Vim
 
 " Indentation
-Plugin 'yggdroot/indentline'
+Plugin 'yggdroot/indentline'                 " Display thin vertical lines at each indentation level
 
 call vundle#end()
 
@@ -105,14 +96,19 @@ augroup END
 filetype plugin indent on
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                            General settings                             "
+"                        *** General settings ***                         "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                            Choose colorschema                           "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 if filereadable(expand('$HOME/.vim/bundle/vim-colorschemes/README.md'))
     " Default dark scheme
     colorscheme Tomorrow-Night
     " colorscheme gruvbox
     " colorscheme nordisk
-
 
     " Default light scheme
     " colorscheme PaperColor " sets the colorscheme
@@ -121,21 +117,41 @@ if filereadable(expand('$HOME/.vim/bundle/vim-colorschemes/README.md'))
     " set background=light
 endif
 
-" make good habit
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                                HJKL                                     "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Make good habit
 " nnoremap <Left> :echoe "Use h"<CR>
 " nnoremap <Right> :echoe "Use l"<CR>
 " nnoremap <Up> :echoe "Use k"<CR>
 " nnoremap <Down> :echoe "Use j"<CR>
 
-au BufRead,BufNewFile *.launch set filetype=xml
-set autochdir
+" Enable mouse
+set mouse=a
 
-" DISPLAY SETTINGS
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                            BUFFERS                                      "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+set autochdir           " Automatically change directory on buffer change
+set hidden              " Allows making buffers hidden even with unsaved changes
+set switchbuf=useopen,usetab  " This option controls the behavior when switching between buffers
+set diffopt+=vertical   " Split buffers vertically in diff mode
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                            DISPLAY SETTINGS                             "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 set scrolloff=5         " 5 lines above/below cursor when scrolling
 set showmatch           " show matching bracket (briefly jump)
 set matchtime=2         " reduces matching paren blink time from the 5[00]ms def
 set cursorline          " highlights the current line
 set winaltkeys=no       " turns of the Alt key bindings to the gui menu
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                            TAB COMPLETION                               "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " When you type the first tab, it will complete as much as possible, the second
 " tab hit will provide a list, the third and subsequent tabs will cycle through
@@ -143,18 +159,23 @@ set winaltkeys=no       " turns of the Alt key bindings to the gui menu
 set wildmode=longest,list,full
 set wildmenu            " completion with menu
 " This changes the default display of tab and CR chars in list mode
-
 " The "longest" option makes completion insert the longest prefix of all
 " the possible matches; see :h completeopt
 set completeopt=menu,menuone,longest
-set switchbuf=useopen,usetab
 
-" EDITOR SETTINGS
-set nowrap
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                            EDITOR SETTINGS                              "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+set nowrap              " Don't wrap lines longer than window width
 set ignorecase          " case insensitive searching
 set smartcase           " but become case sensitive if you type uppercase characters
 " this can cause problems with other filetypes
-" see comment on this SO question http://stackoverflow.com/questions/234564/tab-key-4-spaces-and-auto-indent-after-curly-braces-in-vim/234578#234578
+" see comment on this SO question
+" http://stackoverflow.com/questions/234564/tab-key-4-spaces-and-auto-indent-after-curly-braces-in-vim/234578#234578
+set tabstop=4           " number of spaces a tab counts for
+set shiftwidth=4        " spaces for autoindents
+set expandtab           " turn a tab into spaces
 set smartindent         " smart auto indenting
 set autoindent          " on new lines, match indent of previous line
 set copyindent          " copy the previous indentation on autoindenting
@@ -165,25 +186,21 @@ set magic               " change the way backslashes are used in search patterns
 set bs=indent,eol,start " Allow backspacing over everything in insert mode
 set nobackup            " no backup~ files.
 
-set tabstop=4           " number of spaces a tab counts for
-set shiftwidth=4        " spaces for autoindents
-set softtabstop=4
+set softtabstop=4       " Number of spaces that a <Tab> counts for while performing editing operations
 set shiftround          " makes indenting a multiple of shiftwidth
-set expandtab           " turn a tab into spaces
 set laststatus=2        " the statusline is now always shown
-" set noshowmode          " don't show the mode ("-- INSERT --") at the bottom
 
-" misc settings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                           Misc settings                                "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set fileformat=unix     " file mode is unix
 set fileformats=unix,dos,mac   " detects unix, dos, mac file formats in that order
-set noswapfile  " do not store swap files
+set noswapfile          " do not store swap files
 
-set viminfo='20,\"500   " remember copy registers after quitting in the .viminfo
-                        " file -- 20 jump links, regs up to 500 lines'
+set viminfo='20,\"500   " remember copy registers after quitting in the .viminfo file -- 20 jump links, regs up to 500 lines'
 
-set hidden              " allows making buffers hidden even with unsaved changes
-set history=1000        " remember more commands and search history
-set undolevels=1000     " use many levels of undo
+set history=10000       " remember more commands and search history
+set undolevels=10000    " use many levels of undo
 set autoread            " auto read when a file is changed from the outside
 set foldlevelstart=99   " all folds open by default
 
@@ -195,12 +212,10 @@ let g:is_posix = 1
 " if it still doesn't help with certain commands, add a second <cr>
 " at the end of the map command
 set shortmess+=T
-" enable mouse
-set mouse=a
-" Switch syntax highlighting on, when the terminal has colors
-if &t_Co > 2 || has("gui_running")
-  syntax on
-endif
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                           Navigation                                    "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " none of these should be word dividers, so make them not be
 set iskeyword-=_,$,@,%,#
@@ -210,14 +225,6 @@ set whichwrap+=<,>,h,l,[,]
 set hlsearch            " highlight all search results
 set incsearch           " highlight-as-I-type the search string
 
-" this makes the color after the textwidth column highlighted
-set textwidth=100
-set colorcolumn=+1
-" :hi ColorColumn ctermbg=lightgrey
-
-" options for formatting text; see :h formatoptions
-set formatoptions=croqnj
-
 if v:version >= 704
   " The new Vim regex engine is currently slooooow as hell which makes syntax
   " highlighting slow, which introduces typing latency.
@@ -226,26 +233,31 @@ if v:version >= 704
   set regexpengine=1
 endif
 
-autocmd FileType json setlocal ts=2 sts=2 sw=2
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                           Appearance                                    "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" Open splits to the right
-set splitright
-
-" Lines enumeration
-set number
-
-" Highlight uwanted spaces, nice for tsv files viewing
-set list
+set textwidth=80            " this makes the color after the textwidth column highlighted
+set colorcolumn=+1          " comma separated list of screen columns that are highlighted with ColorColumn
+set formatoptions=croqnj    " options for formatting text; see :h formatoptions
+autocmd FileType json setlocal ts=2 sts=2 sw=2   " Json files rendering
+set splitright              " Open splits to the right
+set number                  " Lines enumeration
+set list                    " Highlight uwanted spaces, nice for tsv files viewing
 set listchars=trail:·,tab:→→
+set shell=/bin/bash         " set shell to use in :terminal
 
-" typos
-" iab itn int
-
-" set shell to use in :terminal
-set shell=/bin/bash
+if &t_Co > 2 || has("gui_running")   " Switch syntax highlighting on, when the terminal has colors
+  syntax on
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                           More involved tweaks                          "
+"                           Typos                                         "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+iab itn int
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                           Tweaks                                        "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " Unicode support (taken from http://vim.wikia.com/wiki/Working_with_Unicode)
@@ -259,8 +271,7 @@ if has("multi_byte")
 endif
 
 augroup vimrc
-  " Automatically delete trailing DOS-returns and whitespace on file open and
-  " write.
+  " Automatically delete trailing DOS-returns and whitespace on file open and write.
   autocmd BufRead,BufWritePre,FileWritePre * silent! %s/[\r \t]\+$//
 augroup END
 
@@ -284,7 +295,7 @@ autocmd vimrc FileType text,markdown,gitcommit setlocal nocindent
 autocmd vimrc FileType markdown setlocal spell! spelllang=en_us
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                            custom mappings                              "
+"                            Custom mappings                              "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " this makes vim's regex engine "not stupid"
@@ -292,31 +303,26 @@ autocmd vimrc FileType markdown setlocal spell! spelllang=en_us
 " nnoremap / /\v
 " vnoremap / /\v
 
-" Allow Tab & Shift-Tab indentation
-" " in /normal and/ visual modes
+" Allow Tab & Shift-Tab indentation in /normal and/ visual modes
 vnoremap <Tab> >
 vnoremap <S-Tab> <
 nnoremap <Tab> >>
 nnoremap <S-Tab> <<
 
-" undo on <C-z>
-" map <C-z> u
-" map! <C-z> <C-o><C-z>
-
 " Saving on F2
 map <silent> <F2> :w<CR>
 map! <F2> <C-o><F2>
 
-" Tree on F4
+" Nerd tree on F4
 map <F4> :NERDTreeToggle<CR>
 map! <F4> <C-o><F4>
 
 " YCM fix
-" map <F5> :YcmCompleter FixIt<CR>
+map <F5> :YcmCompleter FixIt<CR>
 nnoremap <leader>fi :YcmCompleter FixIt<CR>
 
 " YCM gettype
-" map <F6> :YcmCompleter GetType<CR>
+map <F6> :YcmCompleter GetType<CR>
 nnoremap <leader>t :YcmCompleter GetType<CR>
 
 " YCM goto
@@ -351,7 +357,6 @@ map! <S-F12> <C-o><S-F12>
 " the command above to another lower case letter) that you don't use.
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                       ***  HERE BE PLUGINS  ***                         "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -364,18 +369,109 @@ vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 let g:vundle_default_git_proto = 'git'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                                Airline                                  "
+"                                Tagbar                                   "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-set laststatus=2
-let g:airline_theme='zenburn'
-let g:airline_powerline_fonts = 1
+let g:tagbar_autoclose = 0
+let g:tagbar_autofocus = 0
+let g:tagbar_width = 35
+let g:tagbar_ctags_bin = '~/.vim/auxilliary/ctags/ctags-exuberant'
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                             vim-startify                                "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:startify_bookmarks = [ '~/.vimrc' ]
+let g:startify_custom_header = [
+            \'             ',
+            \   '(V)_(o_O)_(V)',
+            \   '             '
+            \ ]
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                             vim-commentary                              "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+autocmd FileType cmake setlocal commentstring=#\ %s
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                             tabline.vim                                 "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:tablineclosebutton=1
+
+hi TabLine      ctermfg=Black  ctermbg=Green     cterm=NONE
+hi TabLineFill  ctermfg=Black  ctermbg=Green     cterm=NONE
+hi TabLineSel   ctermfg=White  ctermbg=DarkBlue  cterm=NONE
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                             scrooloose/nerdtree                         "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:NERDTreeShowHidden=1
+let g:NERDTreeGitStatusUpdateOnWrite = 1
+let g:NERDTreeGitStatusWithFlags = 1
+let g:NERDTreeGitStatusNodeColorization = 1
+
+" Specific colors for NERDTree git symbols
+let g:NERDTreeColorMapCustom = {
+\ "Staged"    : "#0ee375",
+\ "Modified"  : "#d9bf91",
+\ "Renamed"   : "#51C9FC",
+\ "Untracked" : "#FCE77C",
+\ "Unmerged"  : "#FC51E6",
+\ "Dirty"     : "#FFBD61",
+\ "Clean"     : "#87939A",
+\ "Ignored"   : "#808080"
+\ }
+
+" Specific NERDTree git symbols
+let g:NERDTreeGitStatusIndicatorMapCustom = {
+\ 'Modified'  :'✹',
+\ 'Staged'    :'✚',
+\ 'Untracked' :'✭',
+\ 'Renamed'   :'➜',
+\ 'Unmerged'  :'═',
+\ 'Deleted'   :'✖',
+\ 'Dirty'     :'✗',
+\ 'Ignored'   :'☒',
+\ 'Clean'     :'✔︎',
+\ 'Unknown'   :'?',
+\ }
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                                vim-devicons                             "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" loading the plugin
+let g:webdevicons_enable = 1
+" adding the flags to NERDTree
+let g:webdevicons_enable_nerdtree = 1
+" adding to vim-airline's tabline
+let g:webdevicons_enable_airline_tabline = 1
+" adding to vim-airline's statusline
+let g:webdevicons_enable_airline_statusline = 1
+" ctrlp glyphs
+let g:webdevicons_enable_ctrlp = 1
+" adding to vim-startify screen
+let g:webdevicons_enable_startify = 1
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                                vim-airline                              "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Always display statusline
+" Fancy theme. Requires vim-airline-themes
+let g:airline_theme = 'zenburn'
+
+" Use fancy symbols
+let g:airline_powerline_fonts = 1
+" Setup dictionary for the symbols
 if !exists('g:airline_symbols')
     let g:airline_symbols = {}
 endif
 
-" unicode symbols
+" Unicode symbols
 let g:airline_left_sep = '»'
 let g:airline_left_sep = '▶'
 let g:airline_right_sep = '«'
@@ -395,7 +491,7 @@ let g:airline_symbols.spell = 'Ꞩ'
 let g:airline_symbols.notexists = 'Ɇ'
 let g:airline_symbols.whitespace = 'Ξ'
 
-" powerline symbols
+" Powerline symbols
 let g:airline_left_sep = ''
 let g:airline_left_alt_sep = ''
 let g:airline_right_sep = ''
@@ -406,16 +502,18 @@ let g:airline_symbols.linenr = '☰'
 let g:airline_symbols.maxlinenr = ''
 let g:airline_symbols.dirty='⚡'
 
+" Setup interaction with other plugins
+let g:airline#extensions#wordcount#enabled = 0
 let g:airline#extensions#branch#enabled = 1
 let g:airline#extensions#tagbar#enabled = 1
-let g:airline#extensions#csv#enabled = 1
 let g:airline#extensions#virtualenv#enabled = 1
 let g:airline#extensions#whitespace#enabled = 1
 let g:airline#extensions#capslock#enabled = 1
-
 let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#left_sep = ' '
-let g:airline#extensions#tabline#left_alt_sep = '|'
+
+au User AirlineAfterInit  :let g:airline_section_z = airline#section#create([
+\   '%p%% Ln %l/%L Col %v'
+\])
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                                YouCompleteMe                            "
@@ -427,7 +525,7 @@ let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_use_ultisnips_completer = 0
 let g:ycm_complete_in_comments = 1
-let g:ycm_error_symbol = '✙'
+let g:ycm_error_symbol = '❌'
 let g:ycm_warning_symbol = '☝'
 let g:ycm_filetype_specific_completion_to_disable = {
 \   'csv' : 1,
@@ -452,89 +550,48 @@ autocmd FileType c,cpp,python nnoremap <buffer> <F10> :YcmDiags<CR>
 autocmd FileType c,cpp,python inoremap <buffer> <F10> <C-[><F10>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                                vim-startify                             "
+"                             vim-cpp-enhanced-highlight                  "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Highlight class scope
+let g:cpp_class_scope_highlight = 1
 
-let g:startify_bookmarks = [ '~/.vimrc' ]
-let g:startify_custom_header = [
-            \'             ',
-            \   '(V)_(o_O)_(V)',
-            \   '             '
-            \ ]
+" Highlight member variables
+let g:cpp_member_variable_highlight = 1
+
+" Highlight class names in declarations
+let g:cpp_class_decl_highlight = 1
+
+" Highlight POSIX functions
+let g:cpp_posix_standard = 1
+
+" Highlight template functions (slow but more precise)
+let g:cpp_experimental_simple_template_highlight = 1
+
+" Highlight template functions (fast but less precise)
+" let g:cpp_experimental_template_highlight = 1
+
+" Highlight of library concepts
+let g:cpp_concepts_highlight = 1
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                                vim-flake8                               "
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let g:PyFlakeOnWrite = 0
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                          scrooloose/syntastic                           "
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let g:syntastic_python_flake8_args="--max-line-length=80"
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                         klen/python-mode                                "
+"                              python-mode                                "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let g:pymode_options_max_line_length=80
 let g:pymode_python = 'python3'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                             mkitt/tabline.vim                           "
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let g:tablineclosebutton=1
-
-hi TabLine      ctermfg=Black  ctermbg=Green     cterm=NONE
-hi TabLineFill  ctermfg=Black  ctermbg=Green     cterm=NONE
-hi TabLineSel   ctermfg=White  ctermbg=DarkBlue  cterm=NONE
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                             majutsushi/tagbar                           "
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let g:tagbar_autoclose = 0
-let g:tagbar_autofocus = 0
-let g:tagbar_width = 35
-" let g:tagbar_ctags_bin = '~/.vim/auxilliary/ctags/usr/bin/ctags-exuberant'
-let g:tagbar_ctags_bin = '~/.vim/auxilliary/ctags/ctags-exuberant'
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                             tpope/vim-commentary                        "
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-autocmd FileType cmake setlocal commentstring=#\ %s
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                             scrooloose/nerdtree                         "
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let NERDTreeShowHidden=1
-let g:NERDTreeGitStatusUpdateOnWrite = 1
-
-" autocmd BufEnter * lcd %:p:h
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                             tpope/vim-fugitive                          "
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set diffopt+=vertical
-let g:NERDTreeGitStatusWithFlags = 1
-let g:NERDTreeGitStatusNodeColorization = 1
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                             kien/ctrlp.vim                              "
+"                             ctrlp.vim                                   "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_max_depth=40
 let g:ctrlp_max_files=0
+let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                             yggdroot/indentline                         "
+"                             indentline                                  "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let g:indentLine_setConceal = 0
-
+let g:indentLine_enabled = 1
