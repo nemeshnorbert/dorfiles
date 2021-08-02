@@ -19,7 +19,10 @@ Ubuntu
         In color tab choose Tango dark as Built-in Scheme
 
     Install music player
-        Open Ubuntu Software. Type 'clementine' in the search bar. Click install
+        sudo add-apt-repository ppa:nilarimogard/webupd8
+        sudo apt-get update
+        sudo apt-get install audacious audacious-plugins
+        For details see https://vitux.com/how-to-install-audacious-audio-player-on-ubuntu/
 
     Install archive manager
         sudo apt-get install p7zip-full
@@ -52,11 +55,6 @@ Tweaks
 
     Enable two-fingers scrolling
         Settings > Devices > Mouse and Touchpad > Touchpad > Two finger scrolling on
-
-    Turn off annoying zoom in Firefox when scrolling with Ctrl pressed
-        https://support.mozilla.org/en-US/questions/955305
-        Open firefox. Type `about:config` in your search bar. Find setting `mousewheel.with_control.action`
-        and change its value to 1.
 
     Turn off Ubuntu Error sound
         https://askubuntu.com/questions/1030515/turn-off-error-sound-on-ubuntu-18-04
