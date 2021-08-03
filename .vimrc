@@ -19,7 +19,7 @@ endif
 
 " Setup vundle
 set rtp+=$HOME/.vim/bundle/Vundle.vim
-call vundle#begin()
+call vundle#begin('$HOME/.vim/bundle')
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                          Vundle configuration                           "
@@ -61,6 +61,7 @@ Plugin 'octol/vim-cpp-enhanced-highlight'    " Advanced highlighting of C++ code
 
 " Python
 Plugin 'klen/python-mode'                    " Vim python-mode. PyLint, Rope, PyDoc, breakpoints from box
+Plugin 'ambv/black'                          " The Uncompromising Code Formatter
 
 " Git
 Plugin 'tpope/vim-fugitive'                  " Git plugin for Vim. So awesome, it should be illegal
@@ -579,6 +580,16 @@ let g:cpp_concepts_highlight = 1
 
 let g:pymode_options_max_line_length=80
 let g:pymode_python = 'python3'
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                              black                                      "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Specify the virtual environment path for black
+let g:black_virtualenv='~/.vim/black'
+let g:black_linelength = 80
+" Run black on save
+autocmd BufWritePre *.py execute ':Black'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                             ctrlp.vim                                   "
