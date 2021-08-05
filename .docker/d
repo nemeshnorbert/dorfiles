@@ -1,20 +1,30 @@
 #!/bin/bash
 
+################################################################################
+# This script allows you to easily handle development docker images
+################################################################################
+
 # styleguide: https://google.github.io/styleguide/shellguide.html
 
 # saner programming env: these switches turn some bugs into errors
+#
 set -o pipefail -o noclobber -o nounset
 
-##################################
-# Docker functions
-#################################
+################################################################################
+# Globals
+################################################################################
 
 uid=$(id -u)
 gid=$(id -g)
 default_image_name="dev"
 default_container_name="dev"
+default_docker_file_name="Dockerfile"
 
-function __script_directory() {
+################################################################################
+# Utils
+################################################################################
+
+function __script_directory_path() {
     local script_link
     script_link=$(readlink -f "$0")
     local script_dir
@@ -22,52 +32,18 @@ function __script_directory() {
     echo "${script_dir}"
 }
 
+function __script_directory_name() {
+    echo "$(basename $(__script_directory_path))"
+}
+
+################################################################################
+# Docker functions
+################################################################################
+
 function __docker_build() {
     local image_name="$1"
     local docker_file="$2"
-    __docker_build_impl "${image_name}" "${docker_file}"
-}
-
-function __docker_up() {
-    local image_name="$1"
-    local container_name="$2"
-    local docker_extra_args="$3"
-    local container_id
-    container_id=$(docker ps --all --filter "name=${container_name}" --format "{{.ID}}")
-    if [[ -z "${container_id}" ]]; then
-        __docker_create_impl "${image_name}" "${container_name}" "${docker_extra_args}"
-    fi
-    __docker_start_impl "${container_name}"
-    __docker_attach_impl "${container_name}"
-}
-
-function __docker_stop() {
-    local container_name="$1"
-    __docker_stop_impl "${container_name}"
-}
-
-function __docker_list() {
-    __docker_list_containers_impl
-    echo ""
-    __docker_list_images_impl
-}
-
-function __docker_destroy() {
-    local container_name="$1"
-    __docker_stop_impl "$1"
-    __docker_rm_impl "$1"
-}
-
-function __docker_build_impl() {
-    local image_name="$1"
-    if [[ -z "$2" ]]; then
-        docker_dir=$(__script_directory)
-        local docker_file="${docker_dir}/Dockerfile"
-    else
-        local docker_file=$1
-        local docker_dir
-        docker_dir=$(dirname "${docker_file}")
-    fi
+    local docker_dir=$(dirname "${docker_file}")
     docker build \
         --build-arg uid="${uid}" \
         --build-arg gid="${gid}" \
@@ -78,7 +54,33 @@ function __docker_build_impl() {
         "${docker_dir}"
 }
 
+function __docker_up() {
+    local image_name="$1"
+    local container_name="$2"
+    local docker_extra_args="$3"
+    local container_id
+    container_id=$(docker ps --all --filter "name=^/${container_name}$" --format "{{.ID}}")
+    if [[ -z "${container_id}" ]]; then
+        __docker_create "${image_name}" "${container_name}" "${docker_extra_args}"
+    fi
+
+    __docker_start "${container_name}"
+    __docker_attach "${container_name}"
+}
+
+function __docker_stop() {
+    local container_name="$1"
+    docker stop "${container_name}" 1>/dev/null
+}
+
+function __docker_destroy() {
+    local container_name="$1"
+    __docker_stop "${container_name}"
+    __docker_remove_container "${container_name}"
+}
+
 function __default_docker_args() {
+    local container_name="$1"
     local args=''
     args+="--interactive "
     args+="--tty "
@@ -101,13 +103,13 @@ function __default_docker_args() {
     echo "${args}"
 }
 
-function __docker_create_impl() {
+function __docker_create() {
     local image_name="$1"
     local container_name="$2"
-    local docker_extr_args="$3"
+    local docker_extra_args="$3"
     local docker_default_args
-    docker_default_args=$(__default_docker_args)
-    local docker_all_args="${docker_default_args} ${docker_extr_args}"
+    docker_default_args=$(__default_docker_args "${container_name}")
+    local docker_all_args="${docker_default_args} ${docker_extra_args}"
 
     # we need this array to stop shellcheck complaining about docker create call
     local docker_args=()
@@ -115,66 +117,67 @@ function __docker_create_impl() {
         docker_args+=("${arg}")
     done
 
-    docker create \
-        "${docker_args[@]}" \
-        "${image_name}" \
-        1>/dev/null
+    docker create "${docker_args[@]}" "${image_name}" 1>/dev/null
 }
 
-function __docker_start_impl() {
+function __docker_start() {
     local container_name="$1"
     docker start "${container_name}" 1>/dev/null
 }
 
-function __docker_stop_impl() {
-    local container_name="$1"
-    docker stop "${container_name}" 1>/dev/null
-}
-
-function __docker_attach_impl() {
+function __docker_attach() {
     local container_name="$1"
     docker exec -it "${container_name}" bash
 }
 
-function __docker_list_containers_impl() {
+function __docker_list_containers() {
     docker ps -a
 }
 
-function __docker_list_images_impl() {
+function __docker_list_images() {
     docker image ls
 }
 
-function __docker_rm_impl() {
+function __docker_remove_container() {
     local container_name="$1"
     docker rm "${container_name}" 1>/dev/null
 }
 
+function __docker_remove_image() {
+    local image_name="$1"
+    docker rmi "${image_name}" 1>/dev/null
+}
 
-##################################
+
+################################################################################
 # Script
-#################################
+################################################################################
 
 function __script_help() {
-    image_name="$1"
-    container_name="$2"
     echo "Docker wrapper for development docker image"
     echo "Options:"
     echo "  -h, --help             Options description"
-    echo "  -b, --build            Build '${image_name}' image"
-    echo "  -u, --up               Run '${container_name}' container (if not exists) and attach to it"
-    echo "  -s, --stop             Stop '${container_name}' container"
-    echo "  -l, --list             List info on all images and containers"
-    echo "  -d, --destroy          Stop '${container_name}' container and delete it"
-    echo "  -f, --docker_file      Path to the docker file, default is <SCRIPTS_CURRENT_DIR>/Dockerfile"
-    echo "  -i, --image_name       Name of the image, default is ${default_image_name}"
-    echo "  -c, --container_name   Name of the container, default is ${default_container_name}"
+    echo "  -b, --build            Build image"
+    echo "  -c, --create           Create container"
+    echo "  -s, --start            Start an existing container"
+    echo "  -a, --attach           Attach to a running container"
+    echo "  -S, --stop             Stop a running container"
+    echo "  -r, --remove_container Remove an existing container"
+    echo "  -R, --remove_image     Remove an existing image"
+    echo "  -u, --up               Start a container (create if not exists) and attach to it"
+    echo "  -l, --list_containers  List info on all containers"
+    echo "  -L, --list_images      List info on all images"
+    echo "  -d, --destroy          Stop container and delete it"
+    echo "  -F, --docker_file      Path to the docker file, default is <SCRIPTS_CURRENT_DIR>/${default_docker_file_name}"
+    echo "  -I, --image_name       Name of the image"
+    echo "  -C, --container_name   Name of the container"
     echo "Additional parameters are listed after -- and passed to docker"
     echo "Examples:"
     echo "  ./d -b                                # Build container"
     echo "  ./d -b --docker_file ~/myDockerfile   # Build container"
     echo "  ./d -u                                # Run and attach to container"
-    echo "  ./d -sd                               # Stop container and delete it"
-    echo "  ./d -bu --publish 8080                # Build container, run it with open port 8080 and attach"
+    echo "  ./d -s -                              # Stop container and delete it"
+    echo "  ./d -b -u --publish 8080              # Build container, run it with open port 8080 and attach"
 }
 
 function __main() {
@@ -183,16 +186,14 @@ function __main() {
 
     local docker_extra_args=""
     local docker_extra_args_started=0
-    local docker_file=""
 
-    local dummy_image_name="UNNAMED"
-    local dummy_container_name="UNNAMED"
-    local image_name="${dummy_image_name}"
-    local container_name="${dummy_container_name}"
+    local image_name=""
+    local container_name=""
+    local docker_file=""
 
     local commands=()
     for ((i=0; i<args_length; )); do
-        arg=${args[${i}]}
+        local arg=${args[${i}]}
         case "${arg}" in
             -h|--help)
                 commands+=("help")
@@ -200,27 +201,45 @@ function __main() {
             -b|--build)
                 commands+=("build")
                 ;;
-            -u|--up)
-               commands+=("up")
-                ;;
-            -s|--stop)
-                commands+=("stop")
-                ;;
-            -l|--list)
-                commands+=("list")
+            -c|--create)
+                commands+=("create")
                 ;;
             -d|--destroy)
                 commands+=("destroy")
                 ;;
-            -f|--docker_file)
+            -s|--start)
+                commands+=("start")
+                ;;
+            -a|--attach)
+                commands+=("attach")
+                ;;
+            -S|--stop)
+                commands+=("stop")
+                ;;
+            -r|--remove_container)
+                commands+=("remove_container")
+                ;;
+            -R|--remove_image)
+                commands+=("remove_image")
+                ;;
+            -u|--up)
+               commands+=("up")
+                ;;
+            -l|--list_containers)
+                commands+=("list_containers")
+                ;;
+            -L|--list_images)
+                commands+=("list_images")
+                ;;
+            -F|--docker_file)
                 ((i+=1))
                 docker_file=${args[${i}]}
                 ;;
-            -i|--image_name)
+            -I|--image_name)
                 ((i+=1))
                 image_name=${args[${i}]}
                 ;;
-            -c|--container_name)
+            -C|--container_name)
                 ((i+=1))
                 container_name=${args[${i}]}
                 ;;
@@ -230,7 +249,7 @@ function __main() {
             *)
                 if (( docker_extra_args_started == 0)); then
                     echo "Can\'t parse arguments. Unknown argument ${arg}"
-                    __script_help "${image_name}" "${container_name}"
+                    __script_help
                     exit 1
                 fi
                 docker_extra_args+="${arg} "
@@ -239,31 +258,78 @@ function __main() {
         ((i+=1))
     done
 
-    if [[ "${container_name}" ==  "${dummy_container_name}" ]]; then
-        container_name="${default_container_name}"
-    fi
-    if [[ "${image_name}" ==  "${dummy_image_name}" ]]; then
-        image_name="${default_image_name}"
-    fi
-
     for command in "${commands[@]}"; do
         if [[ ${command} == "help" ]]; then
-            __script_help "${image_name}" "${container_name}"
+            __script_help
         fi
         if [[ ${command} == "build" ]]; then
+            if [[ -z "${image_name}" ]]; then
+                image_name="${default_image_name}"
+            fi
+            if [[ -z "${docker_file}" ]]; then
+                docker_file="$(__script_directory_path)/${default_docker_file_name}"
+            fi
             __docker_build "${image_name}" "${docker_file}"
         fi
-        if [[ ${command} == "up" ]]; then
-            __docker_up "${image_name}" "${container_name}" "${docker_extra_args}"
-        fi
-        if [[ ${command} == "stop" ]]; then
-            __docker_stop "${container_name}"
-        fi
-        if [[ ${command} == "list" ]]; then
-            __docker_list
+        if [[ ${command} == "create" ]]; then
+            if [[ -z "${image_name}" ]]; then
+                image_name="${default_image_name}"
+            fi
+            if [[ -z "${container_name}" ]]; then
+                container_name="${default_container_name}"
+            fi
+            __docker_create "${image_name}" "${container_name}" "${docker_extra_args}"
         fi
         if [[ ${command} == "destroy" ]]; then
+            if [[ -z "${container_name}" ]]; then
+                container_name="${default_container_name}"
+            fi
             __docker_destroy "${container_name}"
+        fi
+        if [[ ${command} == "start" ]]; then
+            if [[ -z "${container_name}" ]]; then
+                container_name="${default_container_name}"
+            fi
+            __docker_start "${container_name}"
+        fi
+        if [[ ${command} == "attach" ]]; then
+            if [[ -z "${container_name}" ]]; then
+                container_name="${default_container_name}"
+            fi
+            __docker_attach "${container_name}"
+        fi
+        if [[ ${command} == "stop" ]]; then
+            if [[ -z "${container_name}" ]]; then
+                container_name="${default_container_name}"
+            fi
+            __docker_stop "${container_name}"
+        fi
+        if [[ ${command} == "remove_container" ]]; then
+            if [[ -z "${container_name}" ]]; then
+                container_name="${default_container_name}"
+            fi
+            __docker_remove_container "${container_name}"
+        fi
+        if [[ ${command} == "remove_image" ]]; then
+            if [[ -z "${container_name}" ]]; then
+                container_name="${default_container_name}"
+            fi
+            __docker_remove_image "${container_name}"
+        fi
+        if [[ ${command} == "up" ]]; then
+            if [[ -z "${image_name}" ]]; then
+                image_name="${default_image_name}"
+            fi
+            if [[ -z "${container_name}" ]]; then
+                container_name="${default_container_name}"
+            fi
+            __docker_up "${image_name}" "${container_name}" "${docker_extra_args}"
+        fi
+        if [[ ${command} == "list_containers" ]]; then
+            __docker_list_containers
+        fi
+        if [[ ${command} == "list_images" ]]; then
+            __docker_list_images
         fi
     done
 }
