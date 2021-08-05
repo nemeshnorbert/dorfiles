@@ -37,20 +37,35 @@ call vundle#begin('$HOME/.vim/bundle')
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 
+" Vundle
 Plugin 'gmarik/Vundle.vim'
 
-Plugin 'majutsushi/tagbar'                   " Browse the tags of the file and get an overview of its structure
+" Startify
 Plugin 'mhinz/vim-startify'                  " Start screen for vim
-Plugin 'tpope/vim-commentary'                " Comment stuff in and out
-Plugin 'mkitt/tabline.vim'                   " Configure tab labels within vim with a very succinct output
-Plugin 'scrooloose/nerdtree'                 " File system explorer for vim
-Plugin 'Xuyuanp/nerdtree-git-plugin'         " A plugin of NERDTree showing git status flags.
-Plugin 'ryanoasis/vim-devicons'              " Enble fancy icons in vim
 
-" Colors
+" Tabs and buffers
+Plugin 'mkitt/tabline.vim'                   " Configure tab labels within vim with a very succinct output
+Plugin 'Asheq/close-buffers.vim'
+
+" Appearance, colors, icons
 Plugin 'flazz/vim-colorschemes'              " One stop shop for vim colorschemes
 Plugin 'bling/vim-airline'                   " Lean & mean status/tabline for vim that's light as air
 Plugin 'vim-airline/vim-airline-themes'      " Themes for vim-airline plugin
+Plugin 'ryanoasis/vim-devicons'              " Enble fancy icons in vim
+
+" Surround
+Plugin 'tpope/vim-surround'                  " All about surroundings: parentheses, brackets, quotes, XML tags, and more
+
+" Comments
+Plugin 'tpope/vim-commentary'                " Comment stuff in and out
+
+" Indentation
+Plugin 'yggdroot/indentline'                 " Display thin vertical lines at each indentation level
+
+" Navigation
+Plugin 'ctrlpvim/ctrlp.vim'                  " Full path fuzzy file, buffer, mru, tag, ... finder for Vim
+Plugin 'scrooloose/nerdtree'                 " File system explorer for vim
+Plugin 'majutsushi/tagbar'                   " Browse the tags of the file and get an overview of its structure
 
 " YCM
 Plugin 'Valloric/YouCompleteMe'              " Code completion engine for Vim
@@ -65,15 +80,7 @@ Plugin 'ambv/black'                          " The Uncompromising Code Formatter
 
 " Git
 Plugin 'tpope/vim-fugitive'                  " Git plugin for Vim. So awesome, it should be illegal
-
-" Surround
-Plugin 'tpope/vim-surround'                  " All about surroundings: parentheses, brackets, quotes, XML tags, and more
-
-" CtrlP
-Plugin 'ctrlpvim/ctrlp.vim'                  " Full path fuzzy file, buffer, mru, tag, ... finder for Vim
-
-" Indentation
-Plugin 'yggdroot/indentline'                 " Display thin vertical lines at each indentation level
+Plugin 'Xuyuanp/nerdtree-git-plugin'         " A plugin of NERDTree showing git status flags.
 
 call vundle#end()
 
@@ -208,6 +215,7 @@ set foldlevelstart=99   " all folds open by default
 " this makes sure that shell scripts are highlighted
 " as bash scripts and not sh scripts
 let g:is_posix = 1
+let g:vim_json_conceal = 0
 
 " tries to avoid those annoying "hit enter to continue" messages
 " if it still doesn't help with certain commands, add a second <cr>
