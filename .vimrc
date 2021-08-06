@@ -103,6 +103,7 @@ augroup END
 " This needs to come AFTER the Plugin commands!
 filetype plugin indent on
 
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                        *** General settings ***                         "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -124,6 +125,10 @@ if filereadable(expand('$HOME/.vim/bundle/vim-colorschemes/README.md'))
     set background=dark
     " set background=light
 endif
+
+hi Error ctermfg=160 ctermbg=NONE
+hi ErrorMsg ctermfg=160 ctermbg=NONE
+hi SpellBad ctermbg=85 gui=undercurl guisp=Red
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                                HJKL                                     "
@@ -191,12 +196,30 @@ set cindent             " smart indenting for c-like code
 set cino=b1,g0,N-s,t0,W0  " see :h cinoptions-values
 set smarttab            " smart tab handling for indenting
 set magic               " change the way backslashes are used in search patterns
-set bs=indent,eol,start " Allow backspacing over everything in insert mode
+set backspace=indent,eol,start " Allow backspacing over everything in insert mode
 set nobackup            " no backup~ files.
 
 set softtabstop=4       " Number of spaces that a <Tab> counts for while performing editing operations
 set shiftround          " makes indenting a multiple of shiftwidth
 set laststatus=2        " the statusline is now always shown
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                           Json                                          "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:vim_json_conceal = 0
+
+au! BufRead,BufNewFile *.json set filetype=json
+augroup json_autocmd
+  autocmd!
+  autocmd FileType json set autoindent
+  autocmd FileType json set formatoptions=tcq2l
+  autocmd FileType json set textwidth=78 shiftwidth=2
+  autocmd FileType json set softtabstop=2 tabstop=8
+  autocmd FileType json set expandtab
+  autocmd FileType json set foldmethod=syntax
+augroup END
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                           Misc settings                                "
@@ -215,7 +238,6 @@ set foldlevelstart=99   " all folds open by default
 " this makes sure that shell scripts are highlighted
 " as bash scripts and not sh scripts
 let g:is_posix = 1
-let g:vim_json_conceal = 0
 
 " tries to avoid those annoying "hit enter to continue" messages
 " if it still doesn't help with certain commands, add a second <cr>
@@ -234,14 +256,6 @@ set whichwrap+=<,>,h,l,[,]
 set hlsearch            " highlight all search results
 set incsearch           " highlight-as-I-type the search string
 
-if v:version >= 704
-  " The new Vim regex engine is currently slooooow as hell which makes syntax
-  " highlighting slow, which introduces typing latency.
-  " Consider removing this in the future when the new regex engine becomes
-  " faster.
-  set regexpengine=1
-endif
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                           Appearance                                    "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -249,16 +263,11 @@ endif
 set textwidth=80            " this makes the color after the textwidth column highlighted
 set colorcolumn=+1          " comma separated list of screen columns that are highlighted with ColorColumn
 set formatoptions=croqnj    " options for formatting text; see :h formatoptions
-autocmd FileType json setlocal ts=2 sts=2 sw=2   " Json files rendering
 set splitright              " Open splits to the right
 set number                  " Lines enumeration
 set list                    " Highlight uwanted spaces, nice for tsv files viewing
 set listchars=trail:·,tab:→→
 set shell=/bin/bash         " set shell to use in :terminal
-
-if &t_Co > 2 || has("gui_running")   " Switch syntax highlighting on, when the terminal has colors
-  syntax on
-endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                           Typos                                         "
@@ -279,8 +288,16 @@ if has("multi_byte")
   set fileencodings=ucs-bom,utf-8,latin1
 endif
 
+" The new Vim regex engine is currently slooooow as hell which makes syntax
+" highlighting slow, which introduces typing latency.
+" Consider removing this in the future when the new regex engine becomes
+" faster.
+if v:version >= 704
+  set regexpengine=1
+endif
+
+" Automatically delete trailing DOS-returns and whitespace on file open and write.
 augroup vimrc
-  " Automatically delete trailing DOS-returns and whitespace on file open and write.
   autocmd BufRead,BufWritePre,FileWritePre * silent! %s/[\r \t]\+$//
 augroup END
 
